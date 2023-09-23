@@ -355,7 +355,7 @@ def encode_video(input, codec: CodecInfo, output):
     return {"bpp": bpp, "avg_frm_enc_time": np.mean(avg_frame_enc_time)}
 
 
-def _encode(input, num_of_frames, model, metric, quality, coder, device, output):
+def _encode(input, num_of_frames, model, metric, quality, coder, device, output, pretrained):
     encode_func = {
         CodecType.IMAGE_CODEC: encode_image,
         CodecType.VIDEO_CODEC: encode_video,
@@ -366,7 +366,7 @@ def _encode(input, num_of_frames, model, metric, quality, coder, device, output)
 
     start = time.time()
     model_info = models[model]
-    net = model_info(quality=quality, metric=metric, pretrained=True).to(device).eval()
+    net = model_info(quality=quality, metric=metric, pretrained=pretrained).to(device).eval()
     codec_type = (
         CodecType.IMAGE_CODEC if model in image_models else CodecType.VIDEO_CODEC
     )
@@ -547,6 +547,13 @@ def encode(argv):
     )
     parser.add_argument("-o", "--output", help="Output path")
     parser.add_argument("--cuda", action="store_true", help="Use cuda")
+    parser.add_argument(
+        "-p",
+        "--pretrained",
+        type=bool,
+        default=True,
+        help="Use pretrained models or locally trained ones"
+    )
     args = parser.parse_args(argv)
     if not args.output:
         args.output = Path(Path(args.input).resolve().name).with_suffix(".bin")
@@ -561,6 +568,7 @@ def encode(argv):
         args.coder,
         device,
         args.output,
+        args.pretrained,
     )
 
 
