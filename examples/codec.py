@@ -369,6 +369,9 @@ def _encode(input, num_of_frames, model, metric, quality, coder, device, output,
     model_info = models[model]
     pretrained = bool(pretrained)
     net = model_info(quality=quality, metric=metric, pretrained=pretrained).to(device).eval()
+    if pretrained:
+        state_dict = torch.load('checkpoint_best_loss.pth.tar')['state_dict']
+        net = net.from_state_dict(state_dict)
     codec_type = (
         CodecType.IMAGE_CODEC if model in image_models else CodecType.VIDEO_CODEC
     )
