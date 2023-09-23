@@ -236,10 +236,6 @@ def parse_args(argv):
 def main(argv):
     args = parse_args(argv)
 
-    # Testing...
-    print(args)
-    return
-
     if args.seed is not None:
         torch.manual_seed(args.seed)
         random.seed(args.seed)

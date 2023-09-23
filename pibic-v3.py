@@ -47,59 +47,63 @@ def main():
         piq.haarpsi: 'HaarPSI',
         piq.mdsi: 'MDSI',
     }
-    train_dataset_path = './pibic-tests/datasets/train'
+    train_dataset_path = './pibic-tests/datasets'
     target_img_path = 'pibic-tests/original.png'
     w, h = Image.open(target_img_path).size
     target_img = torch.tensor(imread(target_img_path)).permute(2, 0, 1)[None, ...] / 255.
     # results[pretrained=True|False][metric][model][axis] = list of bpp[x]/metric[y] values
     results_pretrained = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
     results_custom     = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+
     for model in models:
+
+        # Train model
+        # train(['--model', model, '--dataset', train_dataset_path, '--epochs', '1'])
+
         qualities = models[model]
         for quality in qualities:
-            # model(quality=quality, pretrained=True)
             encoded_output = f'pibic-tests/img/{model}_q{quality}'
             decoded_output = f'pibic-tests/img/{model}_q{quality}.png'
+            # Use the pretrained model
             codec([
                 'encode', target_img_path,
                 '--output', encoded_output,
                 '--model', model,
                 '--quality', str(quality),
-                '--pretrained', 'True',
+                '--pretrained', '1',
             ])
             codec([
                 'decode', encoded_output,
                 '--output', decoded_output
             ])
             calculate_metrics(target_img, w, h, model, quality, metrics, results_pretrained)
+            # Use the model trained locally
+            codec([
+                'encode', target_img_path,
+                '--output', encoded_output,
+                '--model', model,
+                '--quality', str(quality),
+                '--pretrained', '0',
+            ])
+            codec([
+                'decode', encoded_output,
+                '--output', decoded_output
+            ])
+            calculate_metrics(target_img, w, h, model, quality, metrics, results_custom)
 
-            # # Train model
-            # train(['--model', model, '--dataset', train_dataset_path])
-            # # to do
-            # codec([
-            #     'encode', target_img_path,
-            #     '--output', encoded_output,
-            #     '--model', model,
-            #     '--quality', str(quality),
-            #     '--pretrained', 'False',
-            # ])
-            # codec([
-            #     'decode', encoded_output,
-            #     '--output', decoded_output
-            # ])
-            # calculate_metrics(target_img, w, h, model, quality, metrics, results, False)
-
-
-    # for metric in results:
-    #     plt.figure(figsize=(12.8, 7.2), dpi=300)
-    #     for model in results[metric]:
-    #         x, y = results[metric][model]['x'], results[metric][model]['y']
-    #         plt.plot(x, y, label=f'{model}', marker='o')
-    #     plt.grid(visible=True)
-    #     plt.xlabel('Bit-rate [bpp]')
-    #     plt.ylabel(metric)
-    #     plt.legend()
-    #     plt.savefig(f'pibic-tests/results/{metric}.png')
+    results = results_pretrained
+    for metric in results:
+        for model in results[metric]:
+            plt.figure(figsize=(12.8, 7.2), dpi=300)
+            x, y = results_pretrained[metric][model]['x'], results_pretrained[metric][model]['y']
+            plt.plot(x, y, label=f'{model} pretrained', marker='o')
+            x, y = results_custom[metric][model]['x'], results_custom[metric][model]['y']
+            plt.plot(x, y, label=f'{model} custom', marker='o')
+            plt.grid(visible=True)
+            plt.xlabel('Bit-rate [bpp]')
+            plt.ylabel(metric)
+            plt.legend()
+            plt.savefig(f'pibic-tests/results/{metric}.png')
 
 
 if __name__ == '__main__':
