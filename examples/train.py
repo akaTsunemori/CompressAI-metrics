@@ -252,6 +252,7 @@ def main(argv):
     test_dataset = ImageFolder(args.dataset, split="test", transform=test_transforms)
 
     device = "cuda" if args.cuda and torch.cuda.is_available() else "cpu"
+    print('Training on', device)
 
     train_dataloader = DataLoader(
         train_dataset,
