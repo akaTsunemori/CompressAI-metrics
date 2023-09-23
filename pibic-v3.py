@@ -24,7 +24,7 @@ def calculate_metrics(target_img, w, h, model, quality, metrics, results):
 
 def main():
     models = { # Model: Quality range
-        'bmshj2018-factorized': range(1, 2),
+        'bmshj2018-factorized': range(1, 9),
         # 'bmshj2018-factorized-relu': range(1, 9),
         # 'bmshj2018-hyperprior':      range(1, 9),
         # 'mbt2018-mean':              range(1, 9),
@@ -51,14 +51,14 @@ def main():
     target_img_path = 'pibic-tests/original.png'
     w, h = Image.open(target_img_path).size
     target_img = torch.tensor(imread(target_img_path)).permute(2, 0, 1)[None, ...] / 255.
-    # results[pretrained=True|False][metric][model][axis] = list of bpp[x]/metric[y] values
+    # results[metric][model][axis] = list of bpp[x]/metric[y] values
     results_pretrained = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
     results_custom     = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
 
     for model in models:
 
         # Train model
-        # train(['--model', model, '--dataset', train_dataset_path, '--epochs', '1'])
+        train(['--model', model, '--dataset', train_dataset_path, '--epochs', '100'])
 
         qualities = models[model]
         for quality in qualities:
