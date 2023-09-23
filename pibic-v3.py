@@ -58,7 +58,7 @@ def main():
     for model in models:
 
         # Train model
-        train(['--model', model, '--dataset', train_dataset_path, '--epochs', '100'])
+        train(['--model', model, '--dataset', train_dataset_path, '--epochs', '100', '--cuda', '--save'])
 
         qualities = models[model]
         for quality in qualities:
