@@ -369,7 +369,11 @@ def _encode(input, num_of_frames, model, metric, quality, coder, device, output,
     pretrained = bool(pretrained)
     net = model_info(quality=quality, metric=metric, pretrained=pretrained).to(device).eval()
     if not pretrained:
-        state_dict = torch.load(state_dict)['state_dict']
+        state_dict = torch.load(state_dict, map_location=device)['state_dict']
+        for key in state_dict:
+            if 'module.' in key:
+                state_dict = { i[7:] : state_dict[i] for i in state_dict }
+            break
         net = net.from_state_dict(state_dict)
     net.update() # Update net, since we change from pretrained to locally trained models.
     codec_type = (
