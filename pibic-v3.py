@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import piq
 import torch
 from collections import defaultdict
-from os import rename
+from os import rename, mkdir
 from os.path import getsize, exists
 from PIL import Image
 from skimage.io import imread
@@ -24,7 +24,7 @@ def calculate_metrics(target_img, w, h, model, quality, metrics, results):
 
 def main():
     models = { # Model: Quality range
-        'bmshj2018-factorized': range(1, 3),
+        'bmshj2018-factorized': range(1, 9),
         # 'bmshj2018-factorized-relu': range(1, 9),
         # 'bmshj2018-hyperprior':      range(1, 9),
         # 'mbt2018-mean':              range(1, 9),
@@ -54,6 +54,12 @@ def main():
     # results[metric][model][axis] = list of bpp[x]/metric[y] values
     results_pretrained = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
     results_custom     = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
+    if not exists('pibic-tests/img'):
+        mkdir('pibic-tests/img')
+    if not exists('pibic-tests/results'):
+        mkdir('pibic-tests/results')
+    if not exists('pibic-tests/datasets'):
+        raise Exception('No datasets to train with')
     for model in models:
         qualities = models[model]
         for quality in qualities:
@@ -66,7 +72,7 @@ def main():
                 train([
                     '--model', model,
                     '--dataset', train_dataset_path,
-                    '--epochs', '1',
+                    '--epochs', '100',
                     '--quality', str(quality),
                     '--cuda', '--save'])
                 rename('checkpoint_best_loss.pth.tar', trained_model)
