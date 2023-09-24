@@ -229,6 +229,12 @@ def parse_args(argv):
         help="gradient clipping max norm (default: %(default)s",
     )
     parser.add_argument("--checkpoint", type=str, help="Path to a checkpoint")
+    parser.add_argument(
+        "--quality",
+        default=3,
+        type=int,
+        help="Quality level (default: %(default)s)",
+    )
     args = parser.parse_args(argv)
     return args
 
@@ -270,7 +276,8 @@ def main(argv):
         pin_memory=(device == "cuda"),
     )
 
-    net = image_models[args.model](quality=3)
+    quality = args.quality
+    net = image_models[args.model](quality=quality)
     net = net.to(device)
 
     if args.cuda and torch.cuda.device_count() > 1:

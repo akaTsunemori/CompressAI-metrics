@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 import piq
 import torch
 from collections import defaultdict
-from os import system
-from os.path import getsize
+from os import rename
+from os.path import getsize, exists
 from PIL import Image
 from skimage.io import imread
 
@@ -24,7 +24,7 @@ def calculate_metrics(target_img, w, h, model, quality, metrics, results):
 
 def main():
     models = { # Model: Quality range
-        'bmshj2018-factorized': range(1, 9),
+        'bmshj2018-factorized': range(1, 3),
         # 'bmshj2018-factorized-relu': range(1, 9),
         # 'bmshj2018-hyperprior':      range(1, 9),
         # 'mbt2018-mean':              range(1, 9),
@@ -54,16 +54,23 @@ def main():
     # results[metric][model][axis] = list of bpp[x]/metric[y] values
     results_pretrained = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
     results_custom     = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
-
     for model in models:
-
-        # Train model
-        # train(['--model', model, '--dataset', train_dataset_path, '--epochs', '1', '--cuda', '--save'])
-
         qualities = models[model]
         for quality in qualities:
             encoded_output = f'pibic-tests/img/{model}_q{quality}'
             decoded_output = f'pibic-tests/img/{model}_q{quality}.png'
+            # Train model
+            trained_model = f'{model}_{quality}_best_loss.pth.tar'
+            checkpoint    = f'{model}_{quality}_checkpoint.pth.tar'
+            if not exists(trained_model):
+                train([
+                    '--model', model,
+                    '--dataset', train_dataset_path,
+                    '--epochs', '1',
+                    '--quality', str(quality),
+                    '--cuda', '--save'])
+                rename('checkpoint_best_loss.pth.tar', trained_model)
+                rename('checkpoint.pth.tar', checkpoint)
             # Use the pretrained model
             codec([
                 'encode', target_img_path,
@@ -84,6 +91,7 @@ def main():
                 '--model', model,
                 '--quality', str(quality),
                 '--pretrained', '0',
+                '--state_dict', trained_model
             ])
             codec([
                 'decode', encoded_output,

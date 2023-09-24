@@ -271,7 +271,6 @@ def encode_image(input, codec: CodecInfo, output):
     x = pad(x, p)
 
     with torch.no_grad():
-        codec.net.update() # Update net, since we change from pretrained to locally trained models.
         out = codec.net.compress(x)
 
     shape = out["shape"]
@@ -356,7 +355,7 @@ def encode_video(input, codec: CodecInfo, output):
     return {"bpp": bpp, "avg_frm_enc_time": np.mean(avg_frame_enc_time)}
 
 
-def _encode(input, num_of_frames, model, metric, quality, coder, device, output, pretrained):
+def _encode(input, num_of_frames, model, metric, quality, coder, device, output, pretrained, state_dict):
     encode_func = {
         CodecType.IMAGE_CODEC: encode_image,
         CodecType.VIDEO_CODEC: encode_video,
@@ -369,9 +368,10 @@ def _encode(input, num_of_frames, model, metric, quality, coder, device, output,
     model_info = models[model]
     pretrained = bool(pretrained)
     net = model_info(quality=quality, metric=metric, pretrained=pretrained).to(device).eval()
-    if pretrained:
-        state_dict = torch.load('checkpoint_best_loss.pth.tar')['state_dict']
+    if not pretrained:
+        state_dict = torch.load(state_dict)['state_dict']
         net = net.from_state_dict(state_dict)
+    net.update() # Update net, since we change from pretrained to locally trained models.
     codec_type = (
         CodecType.IMAGE_CODEC if model in image_models else CodecType.VIDEO_CODEC
     )
@@ -558,7 +558,13 @@ def encode(argv):
         type=int,
         default=1,
         choices=list(range(0, 2)),
-        help="Use pretrained models or locally trained ones [0, 1], 1 = pretrained, 0 = locally trained."
+        help="Use pretrained models or locally trained ones ([0, 1] | 1 = pretrained, 0 = locally trained)"
+    )
+    parser.add_argument(
+        "--state_dict",
+        type=str,
+        default='',
+        help="Indicates the location for the locally trained model"
     )
     args = parser.parse_args(argv)
     if not args.output:
@@ -575,6 +581,7 @@ def encode(argv):
         device,
         args.output,
         args.pretrained,
+        args.state_dict,
     )
 
 
