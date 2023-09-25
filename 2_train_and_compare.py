@@ -25,7 +25,7 @@ def calculate_metrics(target_img, w, h, model, quality, metrics, results):
 
 def main():
     models = { # Model: Quality range
-        'bmshj2018-factorized': range(4, 5),
+        'bmshj2018-factorized': range(1, 9),
         # 'bmshj2018-factorized-relu': range(1, 9),
         # 'bmshj2018-hyperprior':      range(1, 9),
         # 'mbt2018-mean':              range(1, 9),
@@ -73,7 +73,7 @@ def main():
                 train([
                     '--model', model,
                     '--dataset', train_dataset_path,
-                    '--epochs', '1',
+                    '--epochs', '100',
                     '--quality', str(quality),
                     '--cuda', '--save'])
                 rename('checkpoint_best_loss.pth.tar', trained_model)
