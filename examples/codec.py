@@ -379,7 +379,7 @@ def _encode(input, num_of_frames, model, metric, quality, coder, device, output,
         state_dict = load_state_dict(state_dict)
         net = net.from_state_dict(state_dict)
         net.update(force=True) # Update net, since we change from pretrained to locally trained models.
-        net = net.eval()
+        net = net.to(device).eval()
     codec_type = (
         CodecType.IMAGE_CODEC if model in image_models else CodecType.VIDEO_CODEC
     )
