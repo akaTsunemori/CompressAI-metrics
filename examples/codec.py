@@ -367,7 +367,7 @@ def _encode(input, num_of_frames, model, metric, quality, coder, device, output,
     start = time.time()
     model_info = models[model]
     pretrained = bool(pretrained)
-    net = model_info(quality=quality, metric=metric, pretrained=pretrained).to(device).eval()
+    net = model_info(quality=quality, metric=metric, pretrained=pretrained)
     if not pretrained:
         checkpoint = torch.load(state_dict, map_location=device)
         if "network" in checkpoint:
@@ -379,7 +379,7 @@ def _encode(input, num_of_frames, model, metric, quality, coder, device, output,
         state_dict = load_state_dict(state_dict)
         net = net.from_state_dict(state_dict)
         net.update(force=True) # Update net, since we change from pretrained to locally trained models.
-        net = net.to(device).eval()
+    net = net.to(device).eval()
     codec_type = (
         CodecType.IMAGE_CODEC if model in image_models else CodecType.VIDEO_CODEC
     )
