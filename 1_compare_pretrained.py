@@ -33,7 +33,7 @@ def main():
         piq.haarpsi: 'HaarPSI',
         piq.mdsi: 'MDSI',
     }
-    target_img_path = 'pibic-tests/original.png'
+    target_img_path = 'tests/original.png'
     w, h = Image.open(target_img_path).size
     target_img = torch.tensor(imread(target_img_path)).permute(2, 0, 1)[None, ...] / 255.
     # results[metric][model][axis] = list of bpp[x]/metric[y] values
@@ -41,13 +41,13 @@ def main():
     for model in models:
         qualities = models[model]
         for quality in qualities:
-            encode_cmd = f'python3 examples/codec.py encode pibic-tests/original.png --model {model} -q {quality} -o pibic-tests/img/{model}_q{quality}'
-            decode_cmd = f'python3 examples/codec.py decode pibic-tests/img/{model}_q{quality} -o pibic-tests/img/{model}_q{quality}.png'
+            encode_cmd = f'python3 utils/codec.py encode tests/original.png --model {model} -q {quality} -o tests/img/{model}_q{quality}'
+            decode_cmd = f'python3 utils/codec.py decode tests/img/{model}_q{quality} -o tests/img/{model}_q{quality}.png'
             system(encode_cmd)
             system(decode_cmd)
-            compressed_size = getsize(f'pibic-tests/img/{model}_q{quality}')
+            compressed_size = getsize(f'tests/img/{model}_q{quality}')
             img_bpp = (compressed_size * 8) / (w * h)
-            img_path = f'pibic-tests/img/{model}_q{quality}.png'
+            img_path = f'tests/img/{model}_q{quality}.png'
             input_img = torch.tensor(imread(img_path)).permute(2, 0, 1)[None, ...] / 255.
             for metric in metrics:
                 img_metric = metric(input_img, target_img).item()
@@ -62,7 +62,7 @@ def main():
         plt.xlabel('Bit-rate [bpp]')
         plt.ylabel(metric)
         plt.legend()
-        plt.savefig(f'pibic-tests/results/{metric}.png')
+        plt.savefig(f'tests/results/{metric}.png')
 
 
 if __name__ == '__main__':

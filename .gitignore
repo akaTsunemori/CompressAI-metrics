@@ -1,6 +1,6 @@
-venv
 __pycache__
-datasets
+venv
+tests/datasets
+tests/results
+tests/img
 *.pth.tar
-pibic-tests/results
-pibic-tests/img

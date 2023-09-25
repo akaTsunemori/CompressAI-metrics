@@ -1,6 +1,6 @@
 
-from examples.codec import main as codec
-from examples.train import main as train
+from utils.codec import main as codec
+from utils.train import main as train
 
 import matplotlib.pyplot as plt
 import piq
@@ -13,9 +13,9 @@ from skimage.io import imread
 
 
 def calculate_metrics(target_img, w, h, model, quality, metrics, results):
-    compressed_size = getsize(f'pibic-tests/img/{model}_q{quality}')
+    compressed_size = getsize(f'tests/img/{model}_q{quality}')
     img_bpp = (compressed_size * 8) / (w * h)
-    img_path = f'pibic-tests/img/{model}_q{quality}.png'
+    img_path = f'tests/img/{model}_q{quality}.png'
     input_img = torch.tensor(imread(img_path)).permute(2, 0, 1)[None, ...] / 255.
     for metric in metrics:
         img_metric = metric(input_img, target_img).item()
@@ -48,24 +48,24 @@ def main():
         piq.haarpsi: 'HaarPSI',
         piq.mdsi: 'MDSI',
     }
-    train_dataset_path = './pibic-tests/datasets'
-    target_img_path = 'pibic-tests/original.png'
+    train_dataset_path = './tests/datasets'
+    target_img_path = 'tests/original.png'
     w, h = Image.open(target_img_path).size
     target_img = torch.tensor(imread(target_img_path)).permute(2, 0, 1)[None, ...] / 255.
     # results[metric][model][axis] = list of bpp[x]/metric[y] values
     results_pretrained = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
     results_custom     = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
-    if not exists('pibic-tests/img'):
-        mkdir('pibic-tests/img')
-    if not exists('pibic-tests/results'):
-        mkdir('pibic-tests/results')
-    if not exists('pibic-tests/datasets'):
+    if not exists('tests/img'):
+        mkdir('tests/img')
+    if not exists('tests/results'):
+        mkdir('tests/results')
+    if not exists('tests/datasets'):
         raise Exception('No datasets to train with')
     for model in models:
         qualities = models[model]
         for quality in qualities:
-            encoded_output = f'pibic-tests/img/{model}_q{quality}'
-            decoded_output = f'pibic-tests/img/{model}_q{quality}.png'
+            encoded_output = f'tests/img/{model}_q{quality}'
+            decoded_output = f'tests/img/{model}_q{quality}.png'
             # Train model
             trained_model = f'{model}_{quality}_best_loss.pth.tar'
             checkpoint    = f'{model}_{quality}_checkpoint.pth.tar'
@@ -118,7 +118,7 @@ def main():
             plt.xlabel('Bit-rate [bpp]')
             plt.ylabel(metric)
             plt.legend()
-            plt.savefig(f'pibic-tests/results/{metric}.png')
+            plt.savefig(f'tests/results/{metric}.png')
 
 
 if __name__ == '__main__':
