@@ -55,7 +55,7 @@ from compressai.transforms.functional import (
     yuv_420_to_444,
     yuv_444_to_420,
 )
-from compressai.zoo import image_models, models
+from compressai.zoo import image_models, models, load_state_dict
 
 torch.backends.cudnn.deterministic = True
 
@@ -369,13 +369,17 @@ def _encode(input, num_of_frames, model, metric, quality, coder, device, output,
     pretrained = bool(pretrained)
     net = model_info(quality=quality, metric=metric, pretrained=pretrained).to(device).eval()
     if not pretrained:
-        state_dict = torch.load(state_dict, map_location=device)['state_dict']
-        for key in state_dict:
-            if 'module.' in key:
-                state_dict = { i[7:] : state_dict[i] for i in state_dict }
-            break
+        checkpoint = torch.load(state_dict, map_location=device)
+        if "network" in checkpoint:
+            state_dict = checkpoint["network"]
+        elif "state_dict" in checkpoint:
+            state_dict = checkpoint["state_dict"]
+        else:
+            state_dict = checkpoint
+        state_dict = load_state_dict(state_dict)
         net = net.from_state_dict(state_dict)
-    net.update() # Update net, since we change from pretrained to locally trained models.
+        net.update(force=True) # Update net, since we change from pretrained to locally trained models.
+        net = net.eval()
     codec_type = (
         CodecType.IMAGE_CODEC if model in image_models else CodecType.VIDEO_CODEC
     )
