@@ -192,7 +192,7 @@ def parse_args(argv):
         "--lambda",
         dest="lmbda",
         type=float,
-        default=1e-2,
+        default=None,
         help="Bit-rate distortion parameter (default: %(default)s)",
     )
     parser.add_argument(
@@ -275,7 +275,20 @@ def main(argv):
         shuffle=False,
         pin_memory=(device == "cuda"),
     )
-
+    # Predetermined lambdas for each level of quality
+    lambdas = {
+        1: 0.0018,
+        2: 0.0035,
+        3: 0.0067,
+        4: 0.0130,
+        5: 0.0250,
+        6: 0.0483,
+        7: 0.0932,
+        8: 0.1800
+    }
+    lmbda = args.lmbda
+    if not lmbda and 1 <= quality and quality <= 8:
+        lmbda = lambdas[quality]
     quality = args.quality
     net = image_models[args.model](quality=quality)
     net = net.to(device)
@@ -285,7 +298,7 @@ def main(argv):
 
     optimizer, aux_optimizer = configure_optimizers(net, args)
     lr_scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, "min")
-    criterion = RateDistortionLoss(lmbda=args.lmbda)
+    criterion = RateDistortionLoss(lmbda=lmbda)
 
     last_epoch = 0
     if args.checkpoint:  # load from previous checkpoint
