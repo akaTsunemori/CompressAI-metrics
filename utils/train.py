@@ -286,10 +286,10 @@ def main(argv):
         7: 0.0932,
         8: 0.1800
     }
+    quality = args.quality
     lmbda = args.lmbda
     if not lmbda and 1 <= quality and quality <= 8:
         lmbda = lambdas[quality]
-    quality = args.quality
     net = image_models[args.model](quality=quality)
     net = net.to(device)
 
