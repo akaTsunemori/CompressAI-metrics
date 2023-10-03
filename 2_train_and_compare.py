@@ -25,7 +25,7 @@ def calculate_metrics(target_img, w, h, model, quality, metrics, results):
 
 def main():
     models = { # Model: Quality range
-        'bmshj2018-factorized': range(1, 9),
+        'bmshj2018-factorized': range(4, 5),
         # 'bmshj2018-factorized-relu': range(1, 9),
         # 'bmshj2018-hyperprior':      range(1, 9),
         # 'mbt2018-mean':              range(1, 9),
@@ -108,7 +108,6 @@ def main():
                 '--state_dict', trained_model,
             ])
             calculate_metrics(target_img, w, h, model, quality, metrics, results_custom)
-
     results = results_pretrained
     for metric in results:
         for model in results[metric]:
@@ -116,12 +115,12 @@ def main():
             x, y = results_pretrained[metric][model]['x'], results_pretrained[metric][model]['y']
             plt.plot(x, y, label=f'{model} pretrained', marker='o')
             x, y = results_custom[metric][model]['x'], results_custom[metric][model]['y']
-            plt.plot(x, y, label=f'{model} custom', marker='o')
+            plt.plot(x, y, label=f'{model} locally trained', marker='o')
             plt.grid(visible=True)
             plt.xlabel('Bit-rate [bpp]')
             plt.ylabel(metric)
             plt.legend()
-            plt.savefig(f'tests/results/{metric}.png')
+            plt.savefig(f'tests/results/{model}_{metric}.png')
 
 
 if __name__ == '__main__':
