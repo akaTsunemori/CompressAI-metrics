@@ -88,7 +88,8 @@ def main():
             ])
             codec([
                 'decode', encoded_output,
-                '--output', decoded_output
+                '--output', decoded_output,
+                '--pretrained', '1',
             ])
             calculate_metrics(target_img, w, h, model, quality, metrics, results_pretrained)
             # Use the model trained locally
@@ -102,7 +103,9 @@ def main():
             ])
             codec([
                 'decode', encoded_output,
-                '--output', decoded_output
+                '--output', decoded_output,
+                '--pretrained', '0',
+                '--state_dict', trained_model,
             ])
             calculate_metrics(target_img, w, h, model, quality, metrics, results_custom)
 

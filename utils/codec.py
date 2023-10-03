@@ -465,7 +465,7 @@ def decode_video(f, codec: CodecInfo, output):
     return {"img": img, "avg_frm_dec_time": np.mean(avg_frame_dec_time)}
 
 
-def _decode(inputpath, coder, show, device, output=None):
+def _decode(inputpath, coder, show, device, pretrained, state_dict, output=None):
     decode_func = {
         CodecType.IMAGE_CODEC: decode_image,
         CodecType.VIDEO_CODEC: decode_video,
@@ -482,11 +482,20 @@ def _decode(inputpath, coder, show, device, output=None):
 
         start = time.time()
         model_info = models[model]
-        net = (
-            model_info(quality=quality, metric=metric, pretrained=True)
-            .to(device)
-            .eval()
-        )
+        pretrained = bool(pretrained)
+        net = model_info(quality=quality, metric=metric, pretrained=pretrained)
+        if not pretrained:
+            checkpoint = torch.load(state_dict, map_location=device)
+            if "network" in checkpoint:
+                state_dict = checkpoint["network"]
+            elif "state_dict" in checkpoint:
+                state_dict = checkpoint["state_dict"]
+            else:
+                state_dict = checkpoint
+            state_dict = load_state_dict(state_dict)
+            net = net.from_state_dict(state_dict)
+            net.update(force=True)
+        net = net.to(device).eval()
         codec_type = (
             CodecType.IMAGE_CODEC if model in image_models else CodecType.VIDEO_CODEC
         )
@@ -604,11 +613,25 @@ def decode(argv):
         help="Entropy coder (default: %(default)s)",
     )
     parser.add_argument("--show", action="store_true")
+    parser.add_argument(
+        "-p",
+        "--pretrained",
+        type=int,
+        default=1,
+        choices=list(range(0, 2)),
+        help="Use pretrained models or locally trained ones ([0, 1] | 1 = pretrained, 0 = locally trained)"
+    )
+    parser.add_argument(
+        "--state_dict",
+        type=str,
+        default='',
+        help="Indicates the location for the locally trained model"
+    )
     parser.add_argument("-o", "--output", help="Output path")
     parser.add_argument("--cuda", action="store_true", help="Use cuda")
     args = parser.parse_args(argv)
     device = "cuda" if args.cuda and torch.cuda.is_available() else "cpu"
-    _decode(args.input, args.coder, args.show, device, args.output)
+    _decode(args.input, args.coder, args.show, device, args.pretrained, args.state_dict, args.output)
 
 
 def parse_args(argv):
