@@ -13,9 +13,9 @@ from skimage.io import imread
 
 
 def calculate_metrics(target_img, w, h, model, quality, metrics, results):
-    compressed_size = getsize(f'tests/img/{model}_q{quality}')
+    compressed_size = getsize(f'results/img/{model}_q{quality}')
     img_bpp = (compressed_size * 8) / (w * h)
-    img_path = f'tests/img/{model}_q{quality}.png'
+    img_path = f'results/img/{model}_q{quality}.png'
     input_img = torch.tensor(imread(img_path)).permute(2, 0, 1)[None, ...] / 255.
     for metric in metrics:
         img_metric = metric(input_img, target_img).item()
@@ -25,13 +25,13 @@ def calculate_metrics(target_img, w, h, model, quality, metrics, results):
 
 def main():
     models = { # Model: Quality range
-        'bmshj2018-factorized': range(4, 5),
-        # 'bmshj2018-factorized-relu': range(1, 9),
-        # 'bmshj2018-hyperprior':      range(1, 9),
-        # 'mbt2018-mean':              range(1, 9),
-        # 'mbt2018':                   range(1, 9),
-        # 'cheng2020-anchor':          range(1, 7),
-        # 'cheng2020-attn':            range(1, 7),
+        'bmshj2018-factorized': range(1, 9),
+        'bmshj2018-factorized-relu': range(1, 9),
+        'bmshj2018-hyperprior':      range(1, 9),
+        'mbt2018-mean':              range(1, 9),
+        'mbt2018':                   range(1, 9),
+        'cheng2020-anchor':          range(1, 7),
+        'cheng2020-attn':            range(1, 7),
     }
     metrics = { # Metric callable: Metric name
         piq.psnr: 'PSNR',
@@ -48,24 +48,22 @@ def main():
         piq.haarpsi: 'HaarPSI',
         piq.mdsi: 'MDSI',
     }
-    train_dataset_path = './tests/datasets'
-    target_img_path = 'tests/original.png'
+    train_dataset_path = './dataset'
+    target_img_path = './static/original.png'
     w, h = Image.open(target_img_path).size
     target_img = torch.tensor(imread(target_img_path)).permute(2, 0, 1)[None, ...] / 255.
     # results[metric][model][axis] = list of bpp[x]/metric[y] values
     results_pretrained = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
     results_custom     = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
-    if not exists('tests/img'):
-        mkdir('tests/img')
-    if not exists('tests/results'):
-        mkdir('tests/results')
-    if not exists('tests/datasets'):
-        raise Exception('No datasets to train with')
+    if not exists('results/img'):
+        mkdir('results/img')
+    if not exists('results/metrics'):
+        mkdir('results/metrics')
     for model in models:
         qualities = models[model]
         for quality in qualities:
-            encoded_output = f'tests/img/{model}_q{quality}'
-            decoded_output = f'tests/img/{model}_q{quality}.png'
+            encoded_output = f'results/img/{model}_q{quality}'
+            decoded_output = f'results/img/{model}_q{quality}.png'
             # Train model
             trained_model = f'{model}_{quality}_best_loss.pth.tar'
             checkpoint    = f'{model}_{quality}_checkpoint.pth.tar'
@@ -115,12 +113,12 @@ def main():
             x, y = results_pretrained[metric][model]['x'], results_pretrained[metric][model]['y']
             plt.plot(x, y, label=f'{model} pretrained', marker='o')
             x, y = results_custom[metric][model]['x'], results_custom[metric][model]['y']
-            plt.plot(x, y, label=f'{model} locally trained', marker='o')
+            plt.plot(x, y, label=f'{model} custom-trained', marker='o')
             plt.grid(visible=True)
             plt.xlabel('Bit-rate [bpp]')
             plt.ylabel(metric)
             plt.legend()
-            plt.savefig(f'tests/results/{model}_{metric}.png')
+            plt.savefig(f'results/metrics/{model}_{metric}.png')
 
 
 if __name__ == '__main__':
