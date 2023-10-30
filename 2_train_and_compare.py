@@ -57,8 +57,8 @@ def main():
     results_custom     = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
     if not exists('results/img'):
         mkdir('results/img')
-    if not exists('results/metrics'):
-        mkdir('results/metrics')
+    if not exists('results/train_and_compare'):
+        mkdir('results/train_and_compare')
     for model in models:
         qualities = models[model]
         for quality in qualities:
@@ -118,7 +118,7 @@ def main():
             plt.xlabel('Bit-rate [bpp]')
             plt.ylabel(metric)
             plt.legend()
-            plt.savefig(f'results/metrics/{model}_{metric}.png')
+            plt.savefig(f'results/train_and_compare/{model}_{metric}.png')
 
 
 if __name__ == '__main__':
