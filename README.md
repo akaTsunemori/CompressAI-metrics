@@ -1,11 +1,14 @@
-# CompressAI-metrics
-An introductory investigation into image metrics and AI model training, conducted with the models provided by the [CompressAI](https://github.com/InterDigitalInc/CompressAI) library.
+<h1 align="center">
+  CompressAI-metrics
+</h1>
+
+#### An introductory investigation into image metrics and AI model training, conducted with the models provided by the [CompressAI](https://github.com/InterDigitalInc/CompressAI) library.
 
 ## Getting Started
 These instructions will help you set up and run a local copy of the project.
 
 ### Metrics
-For both scripts, we will use the following [PIQ](https://github.com/photosynthesis-team/piq/tree/master)'s Full-Reference Image Metrics: 
+For both scripts, we will use the following [PIQ](https://github.com/photosynthesis-team/piq)'s Full-Reference Image Metrics: 
 
 | Acronym   | Year | Metric                                                  |
 | --------- | ---- | ------------------------------------------------------- |
@@ -40,7 +43,7 @@ For both scripts, we will use the following [PIQ](https://github.com/photosynthe
 git clone https://github.com/akaTsunemori/CompressAI-metrics.git
 cd CompressAI-metrics
 
-# Install the pre-requirements
+# Install the requirements
 pip install -r requirements.txt
 ```
 
