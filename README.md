@@ -84,8 +84,7 @@ The following loss and lambda values were used for training:
 - [Source](https://www.pixiv.net/en/artworks/81724920) for the artwork used in the comparisons.
 
 ## License
-GNU GENERAL PUBLIC LICENSE<br>
-Version 2, June 1991
+Licensed under the BSD 3-Clause Clear License
 
 ---
 
