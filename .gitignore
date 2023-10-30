@@ -1,6 +1,5 @@
 __pycache__
 venv
-tests/datasets
-tests/results
-tests/img
+results/img
+dataset
 *.pth.tar
