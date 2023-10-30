@@ -81,6 +81,7 @@ The following loss and lambda values were used for training:
 - [CompressAI](https://github.com/InterDigitalInc/CompressAI), a PyTorch library and evaluation platform for end-to-end compression research.
 - The files [utils/codec.py](utils/codec.py) and [utils/train.py](utils/train.py) are modified versions from CompressAI's [codec.py](https://github.com/InterDigitalInc/CompressAI/blob/master/examples/codec.py) and [train.py](https://github.com/InterDigitalInc/CompressAI/blob/master/examples/train.py).
 - [PIQ](https://github.com/photosynthesis-team/piq), a collection of measures and metrics for image quality assessment.
+- [Source](https://www.pixiv.net/en/artworks/81724920) for the artwork used in the comparisons.
 
 ## License
 GNU GENERAL PUBLIC LICENSE<br>
