@@ -83,4 +83,5 @@ The following loss and lambda values were used for training:
 - [PIQ](https://github.com/photosynthesis-team/piq), a collection of measures and metrics for image quality assessment.
 
 ## License
-This project is licensed under the [BSD 3-Clause Clear](LICENSE.md) License.
+GNU GENERAL PUBLIC LICENSE
+Version 2, June 1991
