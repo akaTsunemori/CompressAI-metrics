@@ -1,0 +1,1 @@
+These results refer to the bmshj2018-factorized model trained on the JPEGAI dataset for 20 epochs.

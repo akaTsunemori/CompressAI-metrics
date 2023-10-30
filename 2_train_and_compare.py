@@ -90,7 +90,7 @@ def main():
                 '--pretrained', '1',
             ])
             calculate_metrics(target_img, w, h, model, quality, metrics, results_pretrained)
-            # Use the model trained locally
+            # Use the custom-trained model
             codec([
                 'encode', target_img_path,
                 '--output', encoded_output,
